@@ -139,7 +139,7 @@ export const LiveChat = () => {
       </CardHeader>
 
       <CardContent className="pt-0 flex-1 flex flex-col">
-        <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent mb-4">
+        <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent mb-4 max-h-[350px] min-h-[350px]">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -161,7 +161,9 @@ export const LiveChat = () => {
                   {formatTime(msg.timestamp)}
                 </span>
               </div>
-              <p className="text-white text-sm">{msg.message}</p>
+              <p className="text-white text-sm break-words whitespace-pre-wrap">
+                {msg.message}
+              </p>
             </div>
           ))}
           <div ref={chatEndRef} />
