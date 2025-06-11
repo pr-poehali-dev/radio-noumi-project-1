@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Icon from "@/components/ui/icon";
 
 interface ChatMessage {
@@ -7,11 +9,13 @@ interface ChatMessage {
   username: string;
   message: string;
   timestamp: Date;
+  isUser?: boolean;
 }
 
 export const LiveChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [onlineCount, setOnlineCount] = useState(1500000);
+  const [userMessage, setUserMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const usernames = [
@@ -104,9 +108,25 @@ export const LiveChat = () => {
     });
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userMessage.trim()) return;
+
+    const newMessage: ChatMessage = {
+      id: Date.now(),
+      username: "Вы",
+      message: userMessage.trim(),
+      timestamp: new Date(),
+      isUser: true,
+    };
+
+    setMessages((prev) => [...prev.slice(-49), newMessage]);
+    setUserMessage("");
+  };
+
   return (
-    <Card className="bg-gradient-to-r from-blue-800/30 to-cyan-800/30 border-blue-400/30 backdrop-blur-sm h-96">
-      <CardHeader className="pb-3">
+    <Card className="bg-gradient-to-r from-blue-800/30 to-cyan-800/30 border-blue-400/30 backdrop-blur-sm h-[500px] flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="flex items-center justify-between text-white">
           <div className="flex items-center">
             <Icon name="MessageCircle" size={24} className="mr-2" />
@@ -118,15 +138,23 @@ export const LiveChat = () => {
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="h-80 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent">
+      <CardContent className="pt-0 flex-1 flex flex-col">
+        <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-transparent mb-4">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className="flex flex-col bg-white/5 rounded-lg p-2"
+              className={`flex flex-col rounded-lg p-2 ${
+                msg.isUser
+                  ? "bg-purple-600/30 border border-purple-400/30"
+                  : "bg-white/5"
+              }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-cyan-300 font-semibold text-sm">
+                <span
+                  className={`font-semibold text-sm ${
+                    msg.isUser ? "text-purple-300" : "text-cyan-300"
+                  }`}
+                >
                   {msg.username}
                 </span>
                 <span className="text-blue-300 text-xs">
@@ -138,6 +166,23 @@ export const LiveChat = () => {
           ))}
           <div ref={chatEndRef} />
         </div>
+
+        <form onSubmit={handleSendMessage} className="flex gap-2 flex-shrink-0">
+          <Input
+            value={userMessage}
+            onChange={(e) => setUserMessage(e.target.value)}
+            placeholder="Напишите сообщение..."
+            className="flex-1 bg-white/10 border-blue-400/30 text-white placeholder-blue-200"
+            maxLength={200}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            <Icon name="Send" size={16} />
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
